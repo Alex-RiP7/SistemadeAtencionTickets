@@ -1,0 +1,175 @@
+$def with (fila_prioritaria, fila_normal, siguiente, stats)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Atención de Tickets</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 20px;
+        }
+        .contenedor {
+            max-width: 750px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        h2, h3 {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 15px;
+        }
+        .bloque {
+            border: 1px solid #bbb;
+            background-color: #fcfcfc;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 7px;
+            margin-top: 4px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #999;
+        }
+        button {
+            background-color: #e0e0e0;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #d0d0d0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 6px 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background-color: #eaeaea;
+        }
+    </style>
+</head>
+<body>
+
+<div class="contenedor">
+    <h2>Sistema de Atención de Tickets</h2>
+
+    <!-- Estadísticas -->
+    <div class="bloque">
+        <strong>Estadísticas del sistema:</strong>
+        <ul>
+            <li>Tickets esperando: <strong>$stats['total_espera']</strong> (Prioritarios: $stats['cant_prioritarios'] | Normales: $stats['cant_normales'])</li>
+            <li>Tiempo estimado total: <strong>$stats['tiempo_estimado'] minutos</strong></li>
+            <li>Tickets atendidos hasta el momento: <strong>$stats['total_atendidos']</strong></li>
+        </ul>
+    </div>
+
+    <!-- Siguiente a atender -->
+    <div class="bloque">
+        $if siguiente:
+            <p><strong>Turno actual:</strong> $siguiente['numero'] - $siguiente['nombre']</p>
+            <p><strong>Problema:</strong> $siguiente['problema'] | <strong>Prioridad:</strong> $siguiente['prioridad'] | <strong>Tiempo:</strong> $siguiente['tiempo'] min</p>
+            <form method="POST" action="/">
+                <input type="hidden" name="accion" value="atender">
+                <button type="submit">Atender siguiente</button>
+            </form>
+        $else:
+            <p><em>No hay tickets pendientes en espera.</em></p>
+    </div>
+
+    <!-- Formulario de registro -->
+    <h3>Registrar nuevo ticket</h3>
+    <form method="POST" action="/">
+        <input type="hidden" name="accion" value="registrar">
+        
+        <label>Nombre del cliente:</label>
+        <input type="text" name="nombre" required>
+
+        <label>Descripción del problema:</label>
+        <input type="text" name="problema" required>
+
+        <label>Prioridad:</label>
+        <select name="prioridad">
+            <option value="normal">Normal</option>
+            <option value="prioritaria">Prioritaria</option>
+        </select>
+
+        <label>Tiempo estimado (minutos):</label>
+        <input type="number" name="tiempo" value="5" min="1" required>
+
+        <button type="submit">Agregar a la fila</button>
+    </form>
+
+    <!-- Tabla: Fila prioritaria -->
+    <h3>Fila Prioritaria ($len(fila_prioritaria))</h3>
+    $if len(fila_prioritaria) > 0:
+        <table>
+            <thead>
+                <tr>
+                    <th>Ticket</th>
+                    <th>Cliente</th>
+                    <th>Problema</th>
+                    <th>Prioridad</th>
+                    <th>Tiempo</th>
+                </tr>
+            </thead>
+            <tbody>
+                $for t in fila_prioritaria:
+                    <tr>
+                        <td>$t['numero']</td>
+                        <td>$t['nombre']</td>
+                        <td>$t['problema']</td>
+                        <td>$t['prioridad']</td>
+                        <td>$t['tiempo'] min</td>
+                    </tr>
+            </tbody>
+        </table>
+    $else:
+        <p><em>Fila vacía.</em></p>
+
+    <!-- Tabla: Fila normal -->
+    <h3>Fila Normal ($len(fila_normal))</h3>
+    $if len(fila_normal) > 0:
+        <table>
+            <thead>
+                <tr>
+                    <th>Ticket</th>
+                    <th>Cliente</th>
+                    <th>Problema</th>
+                    <th>Prioridad</th>
+                    <th>Tiempo</th>
+                </tr>
+            </thead>
+            <tbody>
+                $for t in fila_normal:
+                    <tr>
+                        <td>$t['numero']</td>
+                        <td>$t['nombre']</td>
+                        <td>$t['problema']</td>
+                        <td>$t['prioridad']</td>
+                        <td>$t['tiempo'] min</td>
+                    </tr>
+            </tbody>
+        </table>
+    $else:
+        <p><em>Fila vacía.</em></p>
+</div>
+
+</body>
+</html>
